@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: de19c1900e18cb94b917b13f81d27e07
+guid: bdc5143aa866d99409ceb7d87d6d848c
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -16,6 +16,8 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
