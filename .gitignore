@@ -1,0 +1,65 @@
+# ------------------------
+# Unity 官方推薦
+# ------------------------
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+MemoryCaptures/
+*.pidb
+*.svd
+*.user
+*.userprefs
+*.csproj
+*.sln
+
+# Rider / VSCode
+.vscode/
+.idea/
+.DS_Store
+
+# ------------------------
+# MediaPipeUnityPlugin 必要內容
+# 千萬不要忽略 StreamingAssets!!!
+# ------------------------
+# Assets/StreamingAssets/ — 必須保留模型、.tflite、.bytes
+# 所以不要 ignore
+# Assets/StreamingAssets*
+
+# Plugins — 需要保留 .dll / .so / .aar / .dylib / .framework
+#（不要亂 ignore 平台檔案）
+
+# ------------------------
+# nuget etc.
+# ------------------------
+.nuget/
+.python-version
+
+# ------------------------
+# 不要忽略 MediaPipe plugin 資源！
+# ------------------------
+# 原本你寫的以下內容會破壞 plugin，所以要移除：
+# Packages/com.github.homuler.mediapipe/PackageResources/MediaPipe/*
+# Packages/com.github.homuler.mediapipe/Runtime/Plugins/Protobuf/*.dll
+# Packages/com.github.homuler.mediapipe/Runtime/Scripts/Protobuf/**/*.cs
+
+# MediaPipe .meta 一定要保留
+*.meta
+!Packages/com.github.homuler.mediapipe/**
+!Assets/StreamingAssets/**
+# ------------------------
+# Android / iOS build cache
+# ------------------------
+.gradle/
+*.apk
+*.aab
+*.ipa
+
+# ------------------------
+# 不要忽略 plugin 的 .dll / .so / .aar
+# （你的專案會直接壞掉）
+# ------------------------
+
