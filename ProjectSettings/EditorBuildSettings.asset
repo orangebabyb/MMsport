@@ -35,4 +35,16 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/test.unity
     guid: 1ab4ce39761a1884cab45ca59faad363
+  - enabled: 1
+    path: Assets/Scenes/StartScene.unity
+    guid: e7dabb3924d5bcf4685a69c650d53e32
+  - enabled: 1
+    path: Assets/Scenes/TreeScene.unity
+    guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/DessertScene.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Scenes/LavaScene.unity
+    guid: a3a8da10c30ca0e489a609e3c301e605
   m_configObjects: {}
