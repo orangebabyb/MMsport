@@ -41,7 +41,20 @@ public class PoseReceiver : MonoBehaviour
         if (runner != null && runner.HasResult)
         {
             var p = runner.LatestWorldPoints;
-            Debug.Log($"[Update] 最新 Nose={p[0]}");
+            Debug.Log($"[Update] 最新 Nose={p}");
         }
+    }
+
+    public Vector3[] GetPoseData()
+    {
+        // 確保 Runner 存在且有算出結果
+        if (runner != null && runner.HasResult)
+        {
+            // 回傳最新的 33 個骨架點位
+            return runner.LatestWorldPoints;
+        }
+        
+        // 如果沒資料，回傳 null
+        return null;
     }
 }
