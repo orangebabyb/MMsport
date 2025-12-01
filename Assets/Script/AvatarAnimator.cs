@@ -14,11 +14,16 @@ public class AvatarAnimator : MonoBehaviour
     // ★ X = -1 做左右鏡像
     public Vector3 coordinateScale = new Vector3(-1, 1, 1);
 
+    // ★ 新增：身體轉動幅度 (1.0 = 1:1 跟隨, 0.5 = 轉一半)
+    [Range(0.1f, 2f)]
+    public float bodyTurnMultiplier = 1.0f;
+
     private List<BoneMap> boneMaps;
     private bool isInitialized = false;
 
-    // 用來修正模型頭部本身的初始旋轉偏差
+    // 用來修正模型本身的初始旋轉偏差
     private Quaternion headInitialRotation;
+    private Quaternion hipsInitialRotation; // ★ 新增 Hips 初始旋轉
 
     private class BoneMap
     {
@@ -53,16 +58,12 @@ public class AvatarAnimator : MonoBehaviour
         boneMaps = new List<BoneMap>();
 
         // ─────────────── 1. 四肢設定 ───────────────
-        // 左手 <--- MP 左手
         AddBone(rig.leftShoulder, 11, 13);
         AddBone(rig.leftElbow,    13, 15);
-        // 右手 <--- MP 右手
         AddBone(rig.rightShoulder, 12, 14);
         AddBone(rig.rightElbow,    14, 16);
-        // 左腿 <--- MP 左腿
         AddBone(rig.leftHip,  23, 25);
         AddBone(rig.leftKnee, 25, 27);
-        // 右腿 <--- MP 右腿
         AddBone(rig.rightHip,  24, 26);
         AddBone(rig.rightKnee, 26, 28);
 
@@ -70,6 +71,15 @@ public class AvatarAnimator : MonoBehaviour
         if (rig.head != null)
         {
             headInitialRotation = rig.head.rotation;
+        }
+
+        // ─────────────── 3. 身體(Hips)初始化 ───────────────
+        // 假設左腳的父物件通常是 Hips (如果你的 rig 沒有 hips 欄位，這是一個權宜之計)
+        // 建議在 AvatarRig 腳本中增加 public Transform hips; 欄位會更嚴謹
+        Transform hips = rig.leftHip.parent; 
+        if (hips != null)
+        {
+            hipsInitialRotation = hips.rotation;
         }
 
         isInitialized = true;
@@ -86,62 +96,83 @@ public class AvatarAnimator : MonoBehaviour
             // 更新身體四肢
             UpdateJoints(fullLandmarks);
             
-            // ★ 更新頭部 (如果有設定頭部骨頭)
+            // 更新頭部
             if (rig.head != null)
             {
                 UpdateHead(fullLandmarks);
             }
+
+            // ★ 更新身體轉身
+            UpdateBodyTurn(fullLandmarks);
         }
     }
 
-    // ★ 版本：鎖定 Y 軸 (只允許左右轉，消除抬頭低頭)
+    // ★ 新增：偵測轉身 (Torso Rotation)
+    private void UpdateBodyTurn(Vector3[] landmarks)
+    {
+        // 我們通常旋轉 Hips (骨盆) 來帶動全身
+        Transform hips = rig.leftHip.parent; // 嘗試抓取 Hips
+        if (hips == null) return;
+
+        // 1. 取得肩膀座標 (鏡像後)
+        Vector3 leftShoulder = ScalePoint(landmarks[11]);
+        Vector3 rightShoulder = ScalePoint(landmarks[12]);
+
+        // 2. 計算「肩膀連線向量」
+        // 從 右肩 指向 左肩 (因為是鏡像，Unity 的左邊對應 MP 的右邊數據)
+        // 這裡的邏輯是：MediaPipe ID 12 是右肩(Unity左), 11 是左肩(Unity右)
+        // 算出目前的肩膀水平線
+        Vector3 shoulderDir = (rightShoulder - leftShoulder).normalized;
+        
+        // 3. 鎖定 Y 軸 (只看水平旋轉)
+        shoulderDir.y = 0;
+        shoulderDir.Normalize();
+
+        if (shoulderDir == Vector3.zero) return;
+
+        // 4. 計算與「正前方」的夾角
+        // 我們的目標是算出 Hips 該轉多少度。
+        // 假設 T-Pose 時，肩膀連線是指向 Vector3.right (或 left)
+        // 這裡我們直接用 LookRotation 建立一個旋轉：正前方是肩膀連線的垂直方向
+        // 數學原理：肩膀連線 X Vector3.up = 身體正前方
+        Vector3 bodyForward = Vector3.Cross(shoulderDir, Vector3.up).normalized;
+
+        // ★ 如果發現身體轉反了 (背對鏡頭)，把 bodyForward 改成 -bodyForward
+        Quaternion targetRotation = Quaternion.LookRotation(bodyForward, Vector3.up);
+
+        // 5. 應用旋轉 (加上初始偏差)
+        // 這裡用 Slerp 插值，可以透過 bodyTurnMultiplier 調整轉動的靈敏度
+        // 注意：這裡我們直接設定 hips 的 rotation，這會影響到子物件(腿)，
+        // 但因為腿部是用 IK 或 FK 絕對座標更新的，所以理論上會自動修正回來。
+        hips.rotation = Quaternion.Slerp(hips.rotation, targetRotation, (1f - smoothSpeed) * bodyTurnMultiplier);
+    }
+
+    // 鎖定 Y 軸的頭部轉動 (保持不變)
     private void UpdateHead(Vector3[] landmarks)
     {
-        // 1. 取得座標
         Vector3 nose = ScalePoint(landmarks[0]);
         
-        // 取得兩邊群組的中心點 (用來算頭的中心)
-        // 左群組
         Vector3 l1 = ScalePoint(landmarks[1]);
         Vector3 l2 = ScalePoint(landmarks[2]);
         Vector3 l3 = ScalePoint(landmarks[3]);
         Vector3 l7 = ScalePoint(landmarks[7]);
         Vector3 leftCentroid = (l1 + l2 + l3 + l7) / 4f;
 
-        // 右群組
         Vector3 r4 = ScalePoint(landmarks[4]);
         Vector3 r5 = ScalePoint(landmarks[5]);
         Vector3 r6 = ScalePoint(landmarks[6]);
         Vector3 r8 = ScalePoint(landmarks[8]);
         Vector3 rightCentroid = (r4 + r5 + r6 + r8) / 4f;
 
-        // 2. 計算臉的中心
         Vector3 faceCenter = (leftCentroid + rightCentroid) * 0.5f;
-
-        // 3. 計算臉的正前方 (Raw Forward)
         Vector3 faceForward = (nose - faceCenter).normalized;
 
-        // ──────────────────────────────────────────────
-        // ★ 關鍵修改：鎖定 Y 軸
-        // ──────────────────────────────────────────────
-        
-        // 步驟 A: 把 Y 軸數值歸零 (壓扁向量)
-        // 這樣無論你真人的頭抬多高，電腦判定這個向量永遠是平視的
         faceForward.y = 0; 
-        
-        // 重新標準化 (因為歸零後長度變了)
         faceForward = faceForward.normalized;
 
-        // 防呆
         if (faceForward == Vector3.zero) return;
 
-        // 步驟 B: 強制頭頂朝向世界正上方 (Vector3.up)
-        // 之前我們是用 Cross Product 算頭頂，那會導致歪頭(Roll)
-        // 現在直接告訴 Unity：「頭頂永遠朝著天空 (0,1,0)」
-        // 這樣頭就不會歪，也不會仰視/俯視，只會像雷達一樣左右轉
         Quaternion targetRotation = Quaternion.LookRotation(faceForward, Vector3.up);
-
-        // 4. 應用旋轉
         rig.head.rotation = Quaternion.Slerp(rig.head.rotation, targetRotation, 1f - smoothSpeed);
     }
 
