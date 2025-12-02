@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8780166289433107156}
   - component: {fileID: 21861859442183793}
   - component: {fileID: 8939770221781423946}
+  - component: {fileID: 4010576123678512636}
   m_Layer: 0
   m_Name: easy_01
   m_TagString: Untagged
@@ -106,3 +107,15 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 3564556802213457179, guid: 2ad890019c08b744d856dc800f2ccbb1, type: 3}
+--- !u!114 &4010576123678512636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1353776404135660675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dfb425527533f14e8cd092bbed88879, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

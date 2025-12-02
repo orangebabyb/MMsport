@@ -30,7 +30,7 @@ public class PoseReceiver_NoUI : MonoBehaviour
     // -----------------------------
     private void OnPoseUpdated(Vector3[] points)
     {
-        Debug.Log($"[Event] 收到 {points.Length} 點 Nose={points[0]}");
+        //Debug.Log($"[Event] 收到 {points.Length} 點 Nose={points[0]}");
     }
 
     // -----------------------------
@@ -41,7 +41,7 @@ public class PoseReceiver_NoUI : MonoBehaviour
         if (runner != null && runner.HasResult)
         {
             var p = runner.LatestWorldPoints;
-            Debug.Log($"[Update] 最新 Nose={p}");
+            //Debug.Log($"[Update] 最新 Nose={p}");
         }
     }
 

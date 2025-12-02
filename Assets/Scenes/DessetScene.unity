@@ -2092,6 +2092,11 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -4406727030793146763, guid: 1307b3e0f85741f4781c20fb06985b01,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.113
+      objectReference: {fileID: 0}
     - target: {fileID: -2049929814205202405, guid: 1307b3e0f85741f4781c20fb06985b01,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -2122,6 +2127,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 742566552}
+    - targetCorrespondingSourceObject: {fileID: -7308941246413180119, guid: 1307b3e0f85741f4781c20fb06985b01,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 742566554}
   m_SourcePrefab: {fileID: 100100000, guid: 1307b3e0f85741f4781c20fb06985b01, type: 3}
 --- !u!1 &620497070 stripped
 GameObject:
@@ -2168,7 +2177,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rig: {fileID: 620497071}
   poseReceiver: {fileID: 0}
-  poseReceiverNoUI: {fileID: 0}
+  poseReceiverNoUI: {fileID: 6400039207179465995}
   smoothSpeed: 0.5
   coordinateScale: {x: -1, y: 1, z: 1}
   bodyTurnMultiplier: 1
@@ -3019,6 +3028,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b54fea2423e6244ba19d8e8af87a947, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!64 &742566554
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 742566550}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}
 --- !u!4 &744629650 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4922979098577100796, guid: 1307b3e0f85741f4781c20fb06985b01,
@@ -4008,6 +4039,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1163565921}
+  - component: {fileID: 1163565922}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -4030,6 +4062,27 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1163565922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1163565920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98cae7444053d714fbe3f28645fa9db5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallPrefabs:
+  - {fileID: 1353776404135660675, guid: 0be959999d439a24f92b59a5972172e6, type: 3}
+  - {fileID: 6797172180958296747, guid: 65a84cd0ba71a994ead9129a5f6b0fb2, type: 3}
+  - {fileID: 1026004948759434059, guid: 42257dad916ec3641b638931136d18eb, type: 3}
+  - {fileID: 7618900414197418099, guid: 66da3e2b7f472d84fb3762a1a42e06a2, type: 3}
+  spawnCoordinates: {x: 0, y: 5.3, z: 42}
+  spawnInterval: 4
+  globalWallSpeed: 5
+  score: 0
 --- !u!1001 &1185731006
 PrefabInstance:
   m_ObjectHideFlags: 0
