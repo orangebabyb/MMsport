@@ -564,6 +564,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rig: {fileID: 602325818}
   poseReceiver: {fileID: 321676147}
+  poseReceiverNoUI: {fileID: 0}
   smoothSpeed: 0.14
   coordinateScale: {x: -1, y: 1, z: 1}
   bodyTurnMultiplier: 1
