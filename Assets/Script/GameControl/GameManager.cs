@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("Game Start!");
         foreach (GameObject wall in WallPrefabs)
         {
             wall.GetComponent<Wall>().gameManager = this;
