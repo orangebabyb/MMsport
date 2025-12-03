@@ -26,6 +26,16 @@ public class AvatarAnimator : MonoBehaviour
     private Quaternion headInitialRotation;
     private Quaternion hipsInitialRotation;
 
+    // 蹲姿參數
+    // ★ 修改：不再記錄初始高度，改為記錄模型的「腿長」
+    private float avatarLegLength; // 大腿 + 小腿的總長度
+    private float avatarAnkleHeight; // 腳踝離地面的高度 (Offset)
+
+    // 蹲下參數設定
+    private const float STAND_ANGLE = 170f; // 站直時的角度
+    private const float SQUAT_ANGLE = 70f;  // 深蹲時的角度
+    private const float MIN_HEIGHT_RATIO = 0.5f; // 蹲到底時，腿長剩多少比例
+
     private class BoneMap
     {
         public Transform transform;
@@ -84,9 +94,21 @@ public class AvatarAnimator : MonoBehaviour
         if (rig.head != null) headInitialRotation = rig.head.rotation;
 
         // 3. 身體(Hips)初始化
-        Transform hips = rig.leftHip.parent; 
-        if (hips != null) hipsInitialRotation = hips.rotation;
-
+        // 這樣就不需要管玩家一開始是站是蹲，我們直接用模型的數據
+        if (rig.leftHip != null && rig.leftKnee != null && rig.leftAnkle != null)
+        {
+            // 計算大腿長 (髖 -> 膝)
+            float upperLeg = Vector3.Distance(rig.leftHip.position, rig.leftKnee.position);
+            // 計算小腿長 (膝 -> 踝)
+            float lowerLeg = Vector3.Distance(rig.leftKnee.position, rig.leftAnkle.position);
+            
+            // 總腿長
+            avatarLegLength = upperLeg + lowerLeg;
+            
+            // 記錄腳踝高度 (假設腳底在 Y=0，這就是腳踝到地板的距離)
+            // 如果你的角色由 Root 控制，這裡可以用 rig.leftAnkle.position.y
+            avatarAnkleHeight = rig.leftAnkle.position.y;
+        }
         isInitialized = true;
     }
 
@@ -99,11 +121,17 @@ public class AvatarAnimator : MonoBehaviour
 
         if (fullLandmarks != null && fullLandmarks.Length >= 29)
         {
+            // 偵測關節旋轉
             UpdateJoints(fullLandmarks);
             
+            // 偵測頭部旋轉
             if (rig.head != null) UpdateHead(fullLandmarks);
 
+            // 偵測轉身
             UpdateBodyTurn(fullLandmarks);
+
+            // 偵測蹲姿
+            UpdateHipsPosition(fullLandmarks);
         }
     }
 
@@ -169,6 +197,43 @@ public class AvatarAnimator : MonoBehaviour
             float t = 1f - smoothSpeed;
             map.transform.rotation = Quaternion.Slerp(map.transform.rotation, targetRotation, t);
         }
+    }
+
+    // ★ 核心功能：使用 23-28 點計算膝蓋角度來控制蹲下
+    private void UpdateHipsPosition(Vector3[] landmarks)
+    {
+        Transform hips = rig.leftHip.parent;
+        if (hips == null) return;
+
+        // 1. 取得關鍵點 (使用 23-28 算角度)
+        Vector3 lHip   = ScalePoint(landmarks[23]);
+        Vector3 lKnee  = ScalePoint(landmarks[25]);
+        Vector3 lAnkle = ScalePoint(landmarks[27]);
+
+        Vector3 rHip   = ScalePoint(landmarks[24]);
+        Vector3 rKnee  = ScalePoint(landmarks[26]);
+        Vector3 rAnkle = ScalePoint(landmarks[28]);
+
+        // 2. 計算膝蓋夾角
+        float lAngle = Vector3.Angle(lHip - lKnee, lAnkle - lKnee);
+        float rAngle = Vector3.Angle(rHip - rKnee, rAnkle - rKnee);
+        float avgAngle = (lAngle + rAngle) * 0.5f;
+
+        // 3. 將角度換算成高度比例 (Ratio)
+        // 角度 170 -> 1.0 (站直)
+        // 角度 70  -> 0.5 (深蹲)
+        float t = Mathf.InverseLerp(SQUAT_ANGLE, STAND_ANGLE, avgAngle);
+        float heightRatio = Mathf.Lerp(MIN_HEIGHT_RATIO, 1.0f, t);
+
+        // 4. 計算目標絕對高度 (Absolute Height)
+        // 公式：腳踝高度 + (腿總長 * 壓縮比例)
+        float targetY = avatarAnkleHeight + (avatarLegLength * heightRatio);
+
+        // 5. 應用高度
+        Vector3 newPos = hips.position;
+        newPos.y = Mathf.Lerp(newPos.y, targetY, 1f - smoothSpeed);
+        
+        hips.position = newPos;
     }
 
     private void AddBone(Transform t, int s, int e)
