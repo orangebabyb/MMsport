@@ -6,20 +6,34 @@ using UnityEngine.SceneManagement;
 
 public class StartSceneUIManager : MonoBehaviour
 {   
-    public GameObject StartCanvas, ChooseModeCanvas, StageSelectCanvas;
-    
-    public void OnClickChooseYourMode()
-    {
-        StartCanvas.SetActive(false);
-        ChooseModeCanvas.SetActive(true);
-    }
+    public GameObject StartCanvas, StageSelectCanvas, TrainingSelectCanvas;
 
 
     public void OnClickPerformanceTest()
     {
-        ChooseModeCanvas.SetActive(false);
+        StartCanvas.SetActive(false);
         StageSelectCanvas.SetActive(true);
     }
+
+    public void OnClickCoachTraining()
+    {
+        StartCanvas.SetActive(false);
+        TrainingSelectCanvas.SetActive(true);
+    }
+
+
+    public void OnClickStageSelectBack()
+    {   
+        StageSelectCanvas.SetActive(false);
+        StartCanvas.SetActive(true);
+    }
+
+    public void OnTrainingSelectBack()
+    {
+        TrainingSelectCanvas.SetActive(false);
+        StartCanvas.SetActive(true);
+    }
+
 
     public void LoadEasyScene()
     {
@@ -28,11 +42,17 @@ public class StartSceneUIManager : MonoBehaviour
 
     public void LoadMediumScene()
     {
-        SceneManager.LoadScene("DessertScene");
+        SceneManager.LoadScene("DessetScene");
     }
 
     public void LoadHardScene()
     {
         SceneManager.LoadScene("LavaScene");
+    }
+
+    public void OnClickTrainingMode(Button clickedButton)
+    {
+        TrainingMode.SelectedTrainingMode = clickedButton.name;
+        SceneManager.LoadScene("TrainingScene");
     }
 }
