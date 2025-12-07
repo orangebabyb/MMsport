@@ -37,6 +37,10 @@ public class AvatarRig : MonoBehaviour
     public Transform rightElbow;    // 14
     public Transform rightWrist;    // 16
 
+    // ★ 新增：脊椎骨頭欄位
+    [Header("Body / 身體")]
+    public Transform spine;
+
     //────────────── 左腳（23-25-27）──────────────
     [Header("Left Leg / 左腳 (23-25-27)")]
     public Transform leftHip;       // 23
