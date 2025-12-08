@@ -132,6 +132,9 @@ public class AvatarAnimator : MonoBehaviour
 
             // 偵測蹲姿
             UpdateHipsPosition(fullLandmarks);
+
+            // 彎腰動作
+            UpdateSpine(fullLandmarks);
         }
     }
 
@@ -217,12 +220,13 @@ public class AvatarAnimator : MonoBehaviour
         // 2. 計算膝蓋夾角
         float lAngle = Vector3.Angle(lHip - lKnee, lAnkle - lKnee);
         float rAngle = Vector3.Angle(rHip - rKnee, rAnkle - rKnee);
-        float avgAngle = (lAngle + rAngle) * 0.5f;
+        //float avgAngle = (lAngle + rAngle) * 0.5f;
+        float dominantAngle = Mathf.Max(lAngle, rAngle);
 
         // 3. 將角度換算成高度比例 (Ratio)
         // 角度 170 -> 1.0 (站直)
         // 角度 70  -> 0.5 (深蹲)
-        float t = Mathf.InverseLerp(SQUAT_ANGLE, STAND_ANGLE, avgAngle);
+        float t = Mathf.InverseLerp(SQUAT_ANGLE, STAND_ANGLE, dominantAngle);
         float heightRatio = Mathf.Lerp(MIN_HEIGHT_RATIO, 1.0f, t);
 
         // 4. 計算目標絕對高度 (Absolute Height)
@@ -234,6 +238,63 @@ public class AvatarAnimator : MonoBehaviour
         newPos.y = Mathf.Lerp(newPos.y, targetY, 1f - smoothSpeed);
         
         hips.position = newPos;
+    }
+
+    // 脊椎彎腰控制
+    private void UpdateSpine(Vector3[] landmarks)
+    {
+        if (rig.spine == null) return;
+
+        // 1. 取得關鍵點 (11,12=肩, 23,24=髖, 25,26=膝)
+        Vector3 lShoulder = ScalePoint(landmarks[11]);
+        Vector3 rShoulder = ScalePoint(landmarks[12]);
+        Vector3 lHip      = ScalePoint(landmarks[23]);
+        Vector3 rHip      = ScalePoint(landmarks[24]);
+        // 新增膝蓋點
+        Vector3 lKnee     = ScalePoint(landmarks[25]);
+        Vector3 rKnee     = ScalePoint(landmarks[26]);
+
+        // 2. 計算中心點
+        Vector3 shoulderCenter = (lShoulder + rShoulder) * 0.5f;
+        Vector3 hipCenter      = (lHip + rHip) * 0.5f;
+        Vector3 kneeCenter     = (lKnee + rKnee) * 0.5f;
+
+        // 3. 計算身體區塊向量
+        // A. 軀幹向量 (上半身)：從屁股指像肩膀
+        Vector3 torsoDir = (shoulderCenter - hipCenter).normalized;
+
+        // B. 大腿向量 (下半身)：從膝蓋指像屁股 (這是新的基準 Up)
+        // 這是讓彎腰更穩定的關鍵！我們不再跟世界座標的 Y 軸比，而是跟你的大腿比
+        Vector3 legDir = (hipCenter - kneeCenter).normalized;
+
+        // 4. 計算肩膀的「右方向量」 (鎖定面朝向)
+        Vector3 shoulderRight = (rShoulder - lShoulder).normalized;
+
+        // 5. 計算目標前方 (Forward)
+        // 我們利用 "肩膀水平線" 和 "軀幹方向" 來算出面朝向
+        Vector3 bodyForward = Vector3.Cross(shoulderRight, torsoDir).normalized;
+
+        // 防呆
+        if (torsoDir == Vector3.zero || legDir == Vector3.zero || bodyForward == Vector3.zero) return;
+
+        // 6. 計算目標旋轉
+        // ★ 關鍵演算法改變：
+        // 原本是：FromToRotation(Vector3.up, torsoDir) -> 跟牆壁比
+        // 現在是：FromToRotation(legDir, torsoDir) -> 跟大腿比
+        // 這樣就算你整個人斜躺在沙發上，只要腰沒彎，Avatar 的腰就是直的
+        Quaternion spineBend = Quaternion.FromToRotation(legDir, torsoDir);
+
+        // 7. 結合 Hips 的旋轉
+        // 為了讓 Spine 正確接在 Hips 上，我們需要把這個相對彎曲疊加上去
+        // 這裡我們重新構建一個 LookRotation，以確保最穩定的結果
+        
+        // 使用 LookRotation 建立最終的旋轉目標：
+        // Up = 軀幹方向 (torsoDir)
+        // Forward = 身體前方 (bodyForward)
+        Quaternion targetRotation = Quaternion.LookRotation(bodyForward, torsoDir);
+
+        // 8. 應用旋轉 (Slerp)
+        rig.spine.rotation = Quaternion.Slerp(rig.spine.rotation, targetRotation, 1f - smoothSpeed);
     }
 
     private void AddBone(Transform t, int s, int e)

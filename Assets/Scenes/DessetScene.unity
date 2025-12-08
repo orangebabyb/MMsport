@@ -2074,6 +2074,7 @@ MonoBehaviour:
   rightShoulder: {fileID: 647618572}
   rightElbow: {fileID: 1780991241}
   rightWrist: {fileID: 1642908417}
+  spine: {fileID: 1667413441}
   leftHip: {fileID: 1128397886}
   leftKnee: {fileID: 1268469681}
   leftAnkle: {fileID: 2044691444}
@@ -4366,9 +4367,9 @@ MonoBehaviour:
   - {fileID: 7745117375764039439, guid: 1e8f4d870266ad24da22cfc415c12af0, type: 3}
   NumberOfWalls: 10
   wallsSpawned: 0
-  WallSpawnInterval: 2
+  WallSpawnInterval: 10
   wallSpawnTimer: 0
-  WallMovementSpeed: 10
+  WallMovementSpeed: 7
   BaseScore: 100
   score: 0
   combos: 0
@@ -5722,6 +5723,12 @@ CapsuleCollider:
   m_Height: 0.012
   m_Direction: 1
   m_Center: {x: 0, y: 0.004, z: 0.0005}
+--- !u!4 &1667413441 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6201684482356537418, guid: 1307b3e0f85741f4781c20fb06985b01,
+    type: 3}
+  m_PrefabInstance: {fileID: 620497069}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1671619500
 PrefabInstance:
   m_ObjectHideFlags: 0

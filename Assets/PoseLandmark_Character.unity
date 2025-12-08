@@ -123,6 +123,12 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!4 &58142261 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6201684482356537418, guid: 1307b3e0f85741f4781c20fb06985b01,
+    type: 3}
+  m_PrefabInstance: {fileID: 626387103}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &138292642
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -532,6 +538,7 @@ MonoBehaviour:
   rightShoulder: {fileID: 1791810498}
   rightElbow: {fileID: 254001588}
   rightWrist: {fileID: 654408715}
+  spine: {fileID: 58142261}
   leftHip: {fileID: 2102319494}
   leftKnee: {fileID: 1186530304}
   leftAnkle: {fileID: 1930323936}
