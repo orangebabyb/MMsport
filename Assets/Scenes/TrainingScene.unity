@@ -1249,6 +1249,7 @@ MonoBehaviour:
   rightShoulder: {fileID: 1627491890}
   rightElbow: {fileID: 1627491888}
   rightWrist: {fileID: 1627491886}
+  spine: {fileID: 0}
   leftHip: {fileID: 1627491884}
   leftKnee: {fileID: 1627491882}
   leftAnkle: {fileID: 1627491880}
@@ -5000,7 +5001,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 1307b3e0f85741f4781c20fb06985b01,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -2049929814205202405, guid: b9c4f450e4ea64f4e9da558d815daf0e,
         type: 3}
@@ -5960,6 +5961,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 1307b3e0f85741f4781c20fb06985b01,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 1307b3e0f85741f4781c20fb06985b01,
         type: 3}
