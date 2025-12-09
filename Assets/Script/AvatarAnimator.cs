@@ -17,6 +17,15 @@ public class AvatarAnimator : MonoBehaviour
     [Header("參數調整")]
     [Range(0f, 1f)]
     public float smoothSpeed = 0.5f;
+
+    [Header("手臂 Z 軸修正 (越小修正越強)")]
+    [Range(0f, 1f)] 
+    public float leftArmZWeight = 0.6f;  // 左手專用 (試著調小這個!)
+    [Range(0f, 1f)] 
+    public float rightArmZWeight = 0.6f; // 右手專用 (保持現狀)
+    [Range(0f, 1f)]
+    public float armRaiseThreshold = 0.5f; // 判定舉手的閾值
+    
     public Vector3 coordinateScale = new Vector3(-1, 1, 1);
     [Range(0.1f, 2f)]
     public float bodyTurnMultiplier = 1.0f;
@@ -193,6 +202,32 @@ public class AvatarAnimator : MonoBehaviour
 
             Vector3 targetDir = (endPos - startPos).normalized;
             if (targetDir.sqrMagnitude < 1e-5f) continue;
+
+            // ★ 手臂專用修正 (針對 MediaPipe Z 軸誤判)
+            // 檢查是否為前臂 (13->15 左手肘到手腕, 14->16 右手肘到手腕)
+            if (map.startIdx == 13 || map.startIdx == 14)
+            {
+                bool isLeftArm = (map.startIdx == 13); // 判斷是左手還是右手
+
+                // 1. 取得上臂方向
+                int shoulderIdx = isLeftArm ? 11 : 12;
+                Vector3 shoulderPos = ScalePoint(landmarks[shoulderIdx]);
+                Vector3 upperArmDir = (startPos - shoulderPos).normalized;
+
+                // 2. 判斷是否「舉手」 (使用變數閾值)
+                if (upperArmDir.y > armRaiseThreshold)
+                {
+                    // 3. 修正前臂方向
+                    // ★ 關鍵修改：根據左右手，選擇不同的權重
+                    float currentWeight = isLeftArm ? leftArmZWeight : rightArmZWeight;
+                    
+                    // 混合比例 (權重越小，強制拉直的效果越強)
+                    float correctedZ = Mathf.Lerp(upperArmDir.z, targetDir.z, currentWeight);
+                    
+                    targetDir = new Vector3(targetDir.x, targetDir.y, correctedZ).normalized;
+                }
+            }
+
 
             Quaternion rotDelta = Quaternion.FromToRotation(map.initialDirection, targetDir);
             Quaternion targetRotation = rotDelta * map.initialRotation;
